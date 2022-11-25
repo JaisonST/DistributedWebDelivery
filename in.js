@@ -63,3 +63,4 @@ let contract = new web3.eth.Contract([
 
 contract.methods.getBalance().call().then(console.log);
 
+contract.methods.send(30).send({ from: "0xC95808ddAc5B843846e8c9f296c4775D88BB8D66" }).then(console.log)
