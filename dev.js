@@ -8,8 +8,16 @@ const web3 = new Web3(env.IP);
 
 let contract = new web3.eth.Contract(CONTRACT_ABI, env.CONTRACT_ID); 
 
-//get live server function call  
-contract.methods.getLiveSite().call().then(console.log);
 
-//get test server function call 
-contract.methods.getLiveSite().call().then(console.log);
+const args = process.argv.slice(2);
+
+if (args[0] == "--live"){
+    //get live server function call  
+    contract.methods.getLiveSite().call().then(console.log);
+}
+
+if (args[0] == "--test"){
+    //get test server function call 
+    contract.methods.getTestSite().call().then(console.log);
+}
+
