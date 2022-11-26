@@ -10,6 +10,7 @@ contract DevEnv{
     
     address public project_owner;
     uint public dev_count; 
+    uint public update_id; 
 
     string live_server;
     string test_server; 
@@ -31,11 +32,12 @@ contract DevEnv{
         //keep track of votes  
         uint count_pos; 
         uint count_neg; 
+        uint id; 
     } 
 
     mapping(address => Dev) public devsM;
     mapping(address => Dev) public devsS;
-    mapping(address => bool) private voted_devs; 
+    mapping(uint => mapping(address => bool)) public voted_devs; 
 
     Update[] public update_list; 
 
@@ -43,7 +45,8 @@ contract DevEnv{
         project_owner = msg.sender;
         devsM[project_owner].weight = 1;
         dev_count = 1; 
-        // initial 400 values 
+        update_id = 0; 
+        // initial 404 values 
         live_server = "https://ipfs.io/ipfs/QmbPfrJJtF5EggL7U3DmG4mWM2DCMehDbwqpXZkM1b4BSQ?filename=404.html"; 
         test_server = "https://ipfs.io/ipfs/QmbPfrJJtF5EggL7U3DmG4mWM2DCMehDbwqpXZkM1b4BSQ?filename=404.html";
 
@@ -70,9 +73,11 @@ contract DevEnv{
             server : _server,
             title :_title, 
             count_pos : 0, 
-            count_neg : 0
+            count_neg : 0,
+            id: update_id
         }));
         updateTestServer(); 
+        update_id+=1; 
     } 
 
     //Get update values 
@@ -86,10 +91,9 @@ contract DevEnv{
     function vote(bool val) public {
         require(devsM[msg.sender].weight >= 1 , "vote failed, insufficent access"); 
         require(update_list.length > 0, "no site to vote for");  
-        require(!voted_devs[msg.sender], "vote failed, already voted"); 
+        require(!voted_devs[update_list[0].id][msg.sender], "vote failed, already voted"); 
 
-        voted_devs[msg.sender] = true; 
-
+        voted_devs[update_list[0].id][msg.sender] = true; 
 
         if(val){
             update_list[0].count_pos += 1;  
@@ -122,6 +126,10 @@ contract DevEnv{
             update_list[i] = update_list[i + 1];
         }
         update_list.pop();
+    }
+
+    function hasUpdate() public view returns (uint) {
+        return update_list.length; 
     }
 
 }
