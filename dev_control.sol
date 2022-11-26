@@ -38,6 +38,7 @@ contract DevEnv{
     mapping(address => Dev) public devsM;
     mapping(address => Dev) public devsS;
     mapping(uint => mapping(address => bool)) public voted_devs; 
+    mapping(address => bool) public has_pending_update; 
 
     Update[] public update_list; 
 
@@ -68,6 +69,8 @@ contract DevEnv{
     function createUpdate (string memory _title, string memory _server) public {
         //todo: add constraint for regular dev
         require( devsM[msg.sender].weight >= 1 , "update failed, insufficent access"); 
+        require(!has_pending_update[msg.sender], "update from node already in pipeline"); 
+        has_pending_update[msg.sender] = true; 
         update_list.push(Update({
             author : msg.sender,
             server : _server,
@@ -122,6 +125,7 @@ contract DevEnv{
     }
 
     function deleteUpdate() private {
+        has_pending_update[update_list[0].author] = false; 
         for (uint i = 0; i < update_list.length - 1; i++) {
             update_list[i] = update_list[i + 1];
         }
